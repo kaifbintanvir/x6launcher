@@ -4,3 +4,4 @@ launcher/gradle_install/
 launcher/.gradle/
 launcher/app/build/
 *.apk
+*.apk

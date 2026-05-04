@@ -3,9 +3,14 @@ package com.kaif.launcher
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +20,8 @@ class AppListActivity : AppCompatActivity() {
 
     private var pickMode = false
     private var pickKey  = ""
+    private lateinit var adapter: AppAdapter
+    private val allApps = mutableListOf<Pair<String, String>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,18 +34,21 @@ class AppListActivity : AppCompatActivity() {
 
         findViewById<TextView>(R.id.appsLabel).setTextColor(fontColor)
 
+        val searchBar = findViewById<EditText>(R.id.searchBar)
+        searchBar.setTextColor(fontColor)
+        searchBar.setHintTextColor(Color.parseColor("#888888"))
+
+        // Tint cursor and underline to font color
+        try {
+            val f = TextView::class.java.getDeclaredField("mCursorDrawableRes")
+            f.isAccessible = true
+        } catch (e: Exception) { }
+
         val recycler = findViewById<RecyclerView>(R.id.appRecycler)
         recycler.layoutManager = LinearLayoutManager(this)
 
-        recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                if (dy < -30 && !rv.canScrollVertically(-1)) {
-                    goHome()
-                }
-            }
-        })
-
-        recycler.adapter = AppAdapter(getInstalledApps(), fontColor) { pkg, label ->
+        allApps.addAll(getInstalledApps())
+        adapter = AppAdapter(allApps.toMutableList(), fontColor) { pkg, label ->
             if (pkg == "com.kaif.launcher.SETTINGS") {
                 startActivity(Intent(this, SettingsActivity::class.java))
                 return@AppAdapter
@@ -51,9 +61,64 @@ class AppListActivity : AppCompatActivity() {
                 packageManager.getLaunchIntentForPackage(pkg)?.let { startActivity(it) }
             }
         }
+        recycler.adapter = adapter
+
+        // Search filter
+        searchBar.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                val query = s.toString().lowercase().trim()
+                val filtered = if (query.isEmpty()) {
+                    allApps.toMutableList()
+                } else {
+                    allApps.filter { (pkg, label) ->
+                        pkg != "com.kaif.launcher.SETTINGS" &&
+                        label.lowercase().contains(query)
+                    }.toMutableList()
+                }
+                adapter.updateList(filtered)
+            }
+        })
+
+        // Press done on keyboard = launch first result
+        searchBar.setOnEditorActionListener { _, actionId, _ ->
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                val current = adapter.getCurrentList()
+                if (current.isNotEmpty()) {
+                    val (pkg, label) = current[0]
+                    if (pkg != "com.kaif.launcher.SETTINGS") {
+                        hideKeyboard()
+                        if (pickMode) {
+                            prefs.edit().putString("${pickKey}_pkg", pkg)
+                                .putString("${pickKey}_label", label).apply()
+                            finish()
+                        } else {
+                            packageManager.getLaunchIntentForPackage(pkg)?.let { startActivity(it) }
+                        }
+                    }
+                }
+                true
+            } else false
+        }
+
+        // Swipe down to go home
+        recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                if (dy < -30 && !rv.canScrollVertically(-1)) {
+                    goHome()
+                }
+            }
+        })
+    }
+
+    private fun hideKeyboard() {
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(currentFocus?.windowToken, 0)
     }
 
     private fun goHome() {
+        hideKeyboard()
         finish()
         overridePendingTransition(0, android.R.anim.fade_out)
     }
@@ -74,7 +139,7 @@ class AppListActivity : AppCompatActivity() {
     }
 
     inner class AppAdapter(
-        private val apps: List<Pair<String, String>>,
+        private var apps: MutableList<Pair<String, String>>,
         private val fontColor: Int,
         private val onClick: (String, String) -> Unit
     ) : RecyclerView.Adapter<AppAdapter.VH>() {
@@ -83,6 +148,13 @@ class AppListActivity : AppCompatActivity() {
             val name: TextView = view.findViewById(R.id.appName)
             val dot:  View     = view.findViewById(R.id.dot)
         }
+
+        fun updateList(newList: MutableList<Pair<String, String>>) {
+            apps = newList
+            notifyDataSetChanged()
+        }
+
+        fun getCurrentList() = apps
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
             VH(LayoutInflater.from(parent.context).inflate(R.layout.item_app, parent, false))

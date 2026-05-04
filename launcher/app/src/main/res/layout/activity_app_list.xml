@@ -16,7 +16,34 @@
         android:fontFamily="sans-serif-medium"
         android:paddingStart="32dp"
         android:paddingTop="48dp"
-        android:paddingBottom="16dp"/>
+        android:paddingBottom="12dp"/>
+
+    <EditText
+        android:id="@+id/searchBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="12dp"
+        android:background="@null"
+        android:hint="search..."
+        android:inputType="text"
+        android:imeOptions="actionDone"
+        android:textColor="@color/text_primary"
+        android:textColorHint="@color/text_secondary"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-light"
+        android:letterSpacing="0.05"
+        android:paddingBottom="8dp"/>
+
+    <View
+        android:id="@+id/searchDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="8dp"
+        android:background="@color/divider"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appRecycler"

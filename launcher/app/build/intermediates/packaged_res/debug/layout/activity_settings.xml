@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="32dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="SETTINGS"
+            android:textColor="@color/accent"
+            android:textSize="11sp"
+            android:letterSpacing="0.3"
+            android:paddingTop="16dp"
+            android:paddingBottom="32dp"/>
+
+        <!-- APPEARANCE SECTION -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="APPEARANCE"
+            android:textColor="@color/accent"
+            android:textSize="10sp"
+            android:letterSpacing="0.3"
+            android:paddingBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Background Image"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:letterSpacing="0.15"
+            android:paddingBottom="4dp"/>
+        <TextView
+            android:id="@+id/wallpaperName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="None (pitch black)"
+            android:textColor="@color/text_primary"
+            android:textSize="18sp"
+            android:fontFamily="sans-serif-light"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="28dp">
+            <Button
+                android:id="@+id/btnSetWallpaper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CHOOSE"
+                android:textColor="@color/accent"
+                android:backgroundTint="@color/divider"
+                android:layout_marginEnd="8dp"/>
+            <Button
+                android:id="@+id/btnClearWallpaper"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="CLEAR"
+                android:textColor="@color/text_secondary"
+                android:backgroundTint="@color/divider"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="App List Font Color"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:letterSpacing="0.15"
+            android:paddingBottom="12dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="8dp">
+            <Button android:id="@+id/colorWhite" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="WHITE" android:textSize="10sp" android:backgroundTint="#FFFFFF" android:textColor="#000000" android:layout_marginEnd="6dp"/>
+            <Button android:id="@+id/colorAccent" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="GREEN" android:textSize="10sp" android:backgroundTint="#00FFB2" android:textColor="#000000" android:layout_marginEnd="6dp"/>
+            <Button android:id="@+id/colorGold" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="GOLD" android:textSize="10sp" android:backgroundTint="#FFD700" android:textColor="#000000"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="28dp">
+            <Button android:id="@+id/colorCyan" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="CYAN" android:textSize="10sp" android:backgroundTint="#00CFFF" android:textColor="#000000" android:layout_marginEnd="6dp"/>
+            <Button android:id="@+id/colorRose" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="ROSE" android:textSize="10sp" android:backgroundTint="#FF6B9D" android:textColor="#000000" android:layout_marginEnd="6dp"/>
+            <Button android:id="@+id/colorOrange" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="ORANGE" android:textSize="10sp" android:backgroundTint="#FF8C00" android:textColor="#000000"/>
+        </LinearLayout>
+
+        <!-- DIVIDER -->
+        <View android:layout_width="40dp" android:layout_height="1dp" android:background="@color/accent" android:layout_marginBottom="28dp"/>
+
+        <!-- GESTURES SECTION -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GESTURES"
+            android:textColor="@color/accent"
+            android:textSize="10sp"
+            android:letterSpacing="0.3"
+            android:paddingBottom="16dp"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="CLOCK TAP" android:textColor="@color/text_secondary" android:textSize="11sp" android:letterSpacing="0.15" android:paddingBottom="4dp"/>
+        <TextView android:id="@+id/clockAppName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Not set" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-light"/>
+        <Button android:id="@+id/btnSetClock" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CHANGE" android:textColor="@color/accent" android:backgroundTint="@color/divider" android:layout_marginBottom="28dp"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="DATE TAP" android:textColor="@color/text_secondary" android:textSize="11sp" android:letterSpacing="0.15" android:paddingBottom="4dp"/>
+        <TextView android:id="@+id/calendarAppName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Not set" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-light"/>
+        <Button android:id="@+id/btnSetCalendar" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CHANGE" android:textColor="@color/accent" android:backgroundTint="@color/divider" android:layout_marginBottom="28dp"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="SWIPE LEFT" android:textColor="@color/text_secondary" android:textSize="11sp" android:letterSpacing="0.15" android:paddingBottom="4dp"/>
+        <TextView android:id="@+id/leftAppName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Not set" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-light"/>
+        <Button android:id="@+id/btnSetLeft" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CHANGE" android:textColor="@color/accent" android:backgroundTint="@color/divider" android:layout_marginBottom="28dp"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="SWIPE RIGHT" android:textColor="@color/text_secondary" android:textSize="11sp" android:letterSpacing="0.15" android:paddingBottom="4dp"/>
+        <TextView android:id="@+id/rightAppName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Not set" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-light"/>
+        <Button android:id="@+id/btnSetRight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CHANGE" android:textColor="@color/accent" android:backgroundTint="@color/divider" android:layout_marginBottom="28dp"/>
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="DOUBLE TAP" android:textColor="@color/text_secondary" android:textSize="11sp" android:letterSpacing="0.15" android:paddingBottom="4dp"/>
+        <TextView android:id="@+id/doubleTapAppName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Not set" android:textColor="@color/text_primary" android:textSize="18sp" android:fontFamily="sans-serif-light"/>
+        <Button android:id="@+id/btnSetDoubleTap" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="CHANGE" android:textColor="@color/accent" android:backgroundTint="@color/divider"/>
+
+    </LinearLayout>
+</ScrollView>

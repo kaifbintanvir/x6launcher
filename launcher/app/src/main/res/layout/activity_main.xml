@@ -54,17 +54,6 @@
                 android:background="@color/accent"
                 android:layout_marginTop="20dp"/>
 
-            <!-- Debug text -->
-            <TextView
-                android:id="@+id/debugText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="11sp"
-                android:textColor="#FF0000"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                android:text=""/>
-
         </LinearLayout>
 
         <LinearLayout

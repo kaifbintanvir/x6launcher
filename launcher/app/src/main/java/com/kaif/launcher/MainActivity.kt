@@ -34,7 +34,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnPlayPause: TextView
     private lateinit var btnPrev: TextView
     private lateinit var btnNext: TextView
-    private lateinit var debugText: TextView
     private lateinit var media: MediaController
 
     private val refreshReceiver = object : BroadcastReceiver() {
@@ -66,7 +65,6 @@ class MainActivity : AppCompatActivity() {
         btnPlayPause = findViewById(R.id.btnPlayPause)
         btnPrev      = findViewById(R.id.btnPrev)
         btnNext      = findViewById(R.id.btnNext)
-        debugText    = findViewById(R.id.debugText)
 
         media = MediaController(this)
 
@@ -145,26 +143,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateMusic() {
-        // Debug: show what's happening
-        try {
-            val msm = getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
-            val component = ComponentName(this, NotificationService::class.java)
-            val enabled = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-            val hasPermission = enabled?.contains(packageName) == true
-
-            val controllers = try {
-                msm.getActiveSessions(component)
-            } catch (e: Exception) {
-                try { msm.getActiveSessions(null) } catch (e2: Exception) { emptyList() }
-            }
-
-            debugText.visibility = View.VISIBLE
-            debugText.text = "perm:$hasPermission sessions:${controllers.size}"
-
-        } catch (e: Exception) {
-            debugText.text = "err:${e.message}"
-        }
-
         val info = try { media.getInfo() } catch (e: Exception) { null }
         if (info != null) {
             musicWidget.visibility = View.VISIBLE

@@ -24,4 +24,13 @@
         android:fontFamily="sans-serif-light"
         android:letterSpacing="0.05"/>
 
+    <!-- Notification dot on the right -->
+    <View
+        android:id="@+id/notifDot"
+        android:layout_width="6dp"
+        android:layout_height="6dp"
+        android:background="@color/accent"
+        android:layout_marginStart="8dp"
+        android:visibility="gone"/>
+
 </LinearLayout>

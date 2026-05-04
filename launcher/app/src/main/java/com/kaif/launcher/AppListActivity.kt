@@ -38,16 +38,11 @@ class AppListActivity : AppCompatActivity() {
         searchBar.setTextColor(fontColor)
         searchBar.setHintTextColor(Color.parseColor("#888888"))
 
-        // Tint cursor and underline to font color
-        try {
-            val f = TextView::class.java.getDeclaredField("mCursorDrawableRes")
-            f.isAccessible = true
-        } catch (e: Exception) { }
-
         val recycler = findViewById<RecyclerView>(R.id.appRecycler)
         recycler.layoutManager = LinearLayoutManager(this)
 
         allApps.addAll(getInstalledApps())
+
         adapter = AppAdapter(allApps.toMutableList(), fontColor) { pkg, label ->
             if (pkg == "com.kaif.launcher.SETTINGS") {
                 startActivity(Intent(this, SettingsActivity::class.java))
@@ -58,30 +53,27 @@ class AppListActivity : AppCompatActivity() {
                     .putString("${pickKey}_label", label).apply()
                 finish()
             } else {
+                // Clear notification dot when app is tapped
+                NotificationService.notifiedPackages.remove(pkg)
+                adapter.notifyDataSetChanged()
                 packageManager.getLaunchIntentForPackage(pkg)?.let { startActivity(it) }
             }
         }
         recycler.adapter = adapter
 
-        // Search filter
         searchBar.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 val query = s.toString().lowercase().trim()
-                val filtered = if (query.isEmpty()) {
-                    allApps.toMutableList()
-                } else {
-                    allApps.filter { (pkg, label) ->
-                        pkg != "com.kaif.launcher.SETTINGS" &&
-                        label.lowercase().contains(query)
-                    }.toMutableList()
-                }
+                val filtered = if (query.isEmpty()) allApps.toMutableList()
+                else allApps.filter { (pkg, label) ->
+                    pkg != "com.kaif.launcher.SETTINGS" && label.lowercase().contains(query)
+                }.toMutableList()
                 adapter.updateList(filtered)
             }
         })
 
-        // Press done on keyboard = launch first result
         searchBar.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val current = adapter.getCurrentList()
@@ -94,6 +86,7 @@ class AppListActivity : AppCompatActivity() {
                                 .putString("${pickKey}_label", label).apply()
                             finish()
                         } else {
+                            NotificationService.notifiedPackages.remove(pkg)
                             packageManager.getLaunchIntentForPackage(pkg)?.let { startActivity(it) }
                         }
                     }
@@ -102,14 +95,17 @@ class AppListActivity : AppCompatActivity() {
             } else false
         }
 
-        // Swipe down to go home
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
-                if (dy < -30 && !rv.canScrollVertically(-1)) {
-                    goHome()
-                }
+                if (dy < -30 && !rv.canScrollVertically(-1)) goHome()
             }
         })
+    }
+
+    // Refresh dots every time list comes back into view
+    override fun onResume() {
+        super.onResume()
+        adapter.notifyDataSetChanged()
     }
 
     private fun hideKeyboard() {
@@ -123,9 +119,7 @@ class AppListActivity : AppCompatActivity() {
         overridePendingTransition(0, android.R.anim.fade_out)
     }
 
-    override fun onBackPressed() {
-        goHome()
-    }
+    override fun onBackPressed() { goHome() }
 
     private fun getInstalledApps(): List<Pair<String, String>> {
         val intent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_LAUNCHER) }
@@ -147,6 +141,7 @@ class AppListActivity : AppCompatActivity() {
         inner class VH(view: View) : RecyclerView.ViewHolder(view) {
             val name: TextView = view.findViewById(R.id.appName)
             val dot:  View     = view.findViewById(R.id.dot)
+            val notifDot: View = view.findViewById(R.id.notifDot)
         }
 
         fun updateList(newList: MutableList<Pair<String, String>>) {
@@ -165,6 +160,9 @@ class AppListActivity : AppCompatActivity() {
             val color = if (pkg == "com.kaif.launcher.SETTINGS") getColor(R.color.accent) else fontColor
             holder.name.setTextColor(color)
             holder.dot.setBackgroundColor(color)
+            val hasNotif = NotificationService.notifiedPackages.contains(pkg)
+            holder.notifDot.visibility = if (hasNotif) View.VISIBLE else View.GONE
+            holder.notifDot.setBackgroundColor(color)
             holder.itemView.setOnClickListener { onClick(pkg, label) }
         }
 

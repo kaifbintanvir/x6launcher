@@ -1,16 +1,21 @@
 package com.kaif.launcher
 
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
+import android.media.session.MediaSessionManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
 import java.util.*
@@ -23,6 +28,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var leftHint: TextView
     private lateinit var rightHint: TextView
     private lateinit var accentLine: View
+    private lateinit var musicWidget: LinearLayout
+    private lateinit var musicTitle: TextView
+    private lateinit var musicArtist: TextView
+    private lateinit var btnPlayPause: TextView
+    private lateinit var btnPrev: TextView
+    private lateinit var btnNext: TextView
+    private lateinit var debugText: TextView
+    private lateinit var media: MediaController
 
     private val refreshReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -33,6 +46,7 @@ class MainActivity : AppCompatActivity() {
     private val clockRunnable = object : Runnable {
         override fun run() {
             updateClock()
+            updateMusic()
             handler.postDelayed(this, 1000)
         }
     }
@@ -41,14 +55,26 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        clockView  = findViewById(R.id.clockView)
-        dateView   = findViewById(R.id.dateView)
-        leftHint   = findViewById(R.id.leftAppHint)
-        rightHint  = findViewById(R.id.rightAppHint)
-        accentLine = findViewById(R.id.accentLine)
+        clockView    = findViewById(R.id.clockView)
+        dateView     = findViewById(R.id.dateView)
+        leftHint     = findViewById(R.id.leftAppHint)
+        rightHint    = findViewById(R.id.rightAppHint)
+        accentLine   = findViewById(R.id.accentLine)
+        musicWidget  = findViewById(R.id.musicWidget)
+        musicTitle   = findViewById(R.id.musicTitle)
+        musicArtist  = findViewById(R.id.musicArtist)
+        btnPlayPause = findViewById(R.id.btnPlayPause)
+        btnPrev      = findViewById(R.id.btnPrev)
+        btnNext      = findViewById(R.id.btnNext)
+        debugText    = findViewById(R.id.debugText)
+
+        media = MediaController(this)
 
         clockView.setOnClickListener { launchAssignedApp("clock") }
         dateView.setOnClickListener  { launchAssignedApp("calendar") }
+        btnPlayPause.setOnClickListener { media.playPause(); updateMusic() }
+        btnPrev.setOnClickListener      { media.prev();      updateMusic() }
+        btnNext.setOnClickListener      { media.next();      updateMusic() }
 
         val gestureView = findViewById<GestureView>(R.id.gestureView)
         gestureView.onSwipeUp = {
@@ -74,6 +100,29 @@ class MainActivity : AppCompatActivity() {
             @Suppress("UnspecifiedRegisterReceiverFlag")
             registerReceiver(refreshReceiver, IntentFilter("com.kaif.launcher.REFRESH"))
         }
+
+        checkNotificationPermission()
+    }
+
+    private fun checkNotificationPermission() {
+        val prefs = getSharedPreferences("launcher", MODE_PRIVATE)
+        val asked = prefs.getBoolean("notif_asked", false)
+        if (asked) return
+        val enabled = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
+        val granted = enabled?.contains(packageName) == true
+        if (!granted) {
+            AlertDialog.Builder(this)
+                .setTitle("Enable Notifications & Music")
+                .setMessage("Grant notification access for app dots and music widget controls?")
+                .setPositiveButton("Enable") { _, _ ->
+                    prefs.edit().putBoolean("notif_asked", true).apply()
+                    startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+                }
+                .setNegativeButton("Skip") { _, _ ->
+                    prefs.edit().putBoolean("notif_asked", true).apply()
+                }
+                .show()
+        }
     }
 
     override fun onBackPressed() { }
@@ -95,6 +144,39 @@ class MainActivity : AppCompatActivity() {
         try { unregisterReceiver(refreshReceiver) } catch (e: Exception) { }
     }
 
+    private fun updateMusic() {
+        // Debug: show what's happening
+        try {
+            val msm = getSystemService(Context.MEDIA_SESSION_SERVICE) as MediaSessionManager
+            val component = ComponentName(this, NotificationService::class.java)
+            val enabled = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
+            val hasPermission = enabled?.contains(packageName) == true
+
+            val controllers = try {
+                msm.getActiveSessions(component)
+            } catch (e: Exception) {
+                try { msm.getActiveSessions(null) } catch (e2: Exception) { emptyList() }
+            }
+
+            debugText.visibility = View.VISIBLE
+            debugText.text = "perm:$hasPermission sessions:${controllers.size}"
+
+        } catch (e: Exception) {
+            debugText.text = "err:${e.message}"
+        }
+
+        val info = try { media.getInfo() } catch (e: Exception) { null }
+        if (info != null) {
+            musicWidget.visibility = View.VISIBLE
+            musicTitle.text   = info.title
+            musicArtist.text  = info.artist
+            btnPlayPause.text = if (info.isPlaying) "⏸" else "▶"
+            musicTitle.isSelected = true
+        } else {
+            musicWidget.visibility = View.GONE
+        }
+    }
+
     private fun applyAppearance() {
         val prefs = getSharedPreferences("launcher", MODE_PRIVATE)
         val fontColor = Color.parseColor(prefs.getString("font_color", "#FFFFFF") ?: "#FFFFFF")
@@ -102,6 +184,10 @@ class MainActivity : AppCompatActivity() {
         leftHint.setTextColor(fontColor)
         rightHint.setTextColor(fontColor)
         accentLine.setBackgroundColor(fontColor)
+        musicTitle.setTextColor(fontColor)
+        btnPlayPause.setTextColor(fontColor)
+        btnPrev.setTextColor(fontColor)
+        btnNext.setTextColor(fontColor)
         updateHints()
     }
 

@@ -53,7 +53,6 @@ class AppListActivity : AppCompatActivity() {
                     .putString("${pickKey}_label", label).apply()
                 finish()
             } else {
-                // Clear notification dot when app is tapped
                 NotificationService.notifiedPackages.remove(pkg)
                 adapter.notifyDataSetChanged()
                 packageManager.getLaunchIntentForPackage(pkg)?.let { startActivity(it) }
@@ -102,7 +101,6 @@ class AppListActivity : AppCompatActivity() {
         })
     }
 
-    // Refresh dots every time list comes back into view
     override fun onResume() {
         super.onResume()
         adapter.notifyDataSetChanged()

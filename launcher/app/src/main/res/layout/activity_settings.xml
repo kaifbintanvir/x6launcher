@@ -30,10 +30,48 @@
             android:letterSpacing="0.3"
             android:paddingBottom="16dp"/>
 
+        <!-- Time format -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Background Image"
+            android:text="Time Format"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp"
+            android:letterSpacing="0.15"
+            android:paddingBottom="12dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="28dp">
+
+            <Button
+                android:id="@+id/btn24h"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="44dp"
+                android:text="24H"
+                android:textColor="@color/accent"
+                android:backgroundTint="@color/divider"
+                android:layout_marginEnd="8dp"/>
+
+            <Button
+                android:id="@+id/btn12h"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="44dp"
+                android:text="12H AM/PM"
+                android:textColor="@color/text_secondary"
+                android:backgroundTint="@color/divider"/>
+
+        </LinearLayout>
+
+        <!-- Wallpaper -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Background Wallpaper"
             android:textColor="@color/text_secondary"
             android:textSize="11sp"
             android:letterSpacing="0.15"
@@ -42,32 +80,20 @@
             android:id="@+id/wallpaperName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="None (pitch black)"
+            android:text="Managed by system"
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:fontFamily="sans-serif-light"/>
-        <LinearLayout
-            android:layout_width="match_parent"
+        <Button
+            android:id="@+id/btnSetWallpaper"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="28dp">
-            <Button
-                android:id="@+id/btnSetWallpaper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CHOOSE"
-                android:textColor="@color/accent"
-                android:backgroundTint="@color/divider"
-                android:layout_marginEnd="8dp"/>
-            <Button
-                android:id="@+id/btnClearWallpaper"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="CLEAR"
-                android:textColor="@color/text_secondary"
-                android:backgroundTint="@color/divider"/>
-        </LinearLayout>
+            android:text="CHOOSE"
+            android:textColor="@color/accent"
+            android:backgroundTint="@color/divider"
+            android:layout_marginBottom="28dp"/>
 
+        <!-- Font color -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -96,7 +122,6 @@
             <Button android:id="@+id/colorOrange" android:layout_width="0dp" android:layout_weight="1" android:layout_height="44dp" android:text="ORANGE" android:textSize="10sp" android:backgroundTint="#FF8C00" android:textColor="#000000"/>
         </LinearLayout>
 
-        <!-- DIVIDER -->
         <View android:layout_width="40dp" android:layout_height="1dp" android:background="@color/accent" android:layout_marginBottom="28dp"/>
 
         <!-- GESTURES SECTION -->

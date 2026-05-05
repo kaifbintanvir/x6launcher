@@ -15,20 +15,39 @@ class SettingsActivity : AppCompatActivity() {
         setContentView(R.layout.activity_settings)
         updateLabels()
 
-        // Opens system wallpaper picker directly
-        findViewById<Button>(R.id.btnSetWallpaper).setOnClickListener {
-            try {
-                val intent = WallpaperManager.getInstance(this).getCropAndSetWallpaperIntent(
-                    android.net.Uri.EMPTY
-                )
-                startActivity(intent)
-            } catch (e: Exception) {
-                // Fallback to generic system wallpaper chooser
-                val intent = Intent(Intent.ACTION_SET_WALLPAPER)
-                startActivity(Intent.createChooser(intent, "Set Wallpaper"))
-            }
+        val prefs = getSharedPreferences("launcher", MODE_PRIVATE)
+
+        // Time format buttons
+        val btn24h = findViewById<Button>(R.id.btn24h)
+        val btn12h = findViewById<Button>(R.id.btn12h)
+
+        fun updateFormatButtons(is24h: Boolean) {
+            btn24h.setTextColor(if (is24h) getColor(R.color.accent) else Color.parseColor("#888888"))
+            btn12h.setTextColor(if (!is24h) getColor(R.color.accent) else Color.parseColor("#888888"))
         }
 
+        updateFormatButtons(prefs.getBoolean("use_24h", true))
+
+        btn24h.setOnClickListener {
+            prefs.edit().putBoolean("use_24h", true).apply()
+            updateFormatButtons(true)
+            sendBroadcast(Intent("com.kaif.launcher.REFRESH"))
+        }
+        btn12h.setOnClickListener {
+            prefs.edit().putBoolean("use_24h", false).apply()
+            updateFormatButtons(false)
+            sendBroadcast(Intent("com.kaif.launcher.REFRESH"))
+        }
+
+        // Wallpaper
+        findViewById<Button>(R.id.btnSetWallpaper).setOnClickListener {
+            try {
+                val intent = Intent(Intent.ACTION_SET_WALLPAPER)
+                startActivity(Intent.createChooser(intent, "Set Wallpaper"))
+            } catch (e: Exception) { }
+        }
+
+        // Font colors
         val colorMap = mapOf(
             R.id.colorWhite  to "#FFFFFF",
             R.id.colorAccent to "#00FFB2",
@@ -39,12 +58,12 @@ class SettingsActivity : AppCompatActivity() {
         )
         colorMap.forEach { (btnId, hex) ->
             findViewById<Button>(btnId).setOnClickListener {
-                getSharedPreferences("launcher", MODE_PRIVATE).edit()
-                    .putString("font_color", hex).apply()
+                prefs.edit().putString("font_color", hex).apply()
                 sendBroadcast(Intent("com.kaif.launcher.REFRESH"))
             }
         }
 
+        // Gestures
         listOf("clock", "calendar", "left", "right", "doubletap").forEach { key ->
             val btnId = when(key) {
                 "clock"    -> R.id.btnSetClock
@@ -74,6 +93,5 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.leftAppName).text = prefs.getString("left_label", "Not set")
         findViewById<TextView>(R.id.rightAppName).text = prefs.getString("right_label", "Not set")
         findViewById<TextView>(R.id.doubleTapAppName).text = prefs.getString("doubletap_label", "Not set")
-        findViewById<TextView>(R.id.wallpaperName).text = "Managed by system"
     }
 }

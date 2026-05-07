@@ -9,10 +9,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.provider.Settings
 import android.view.View
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import java.text.SimpleDateFormat
 import java.util.*
@@ -77,27 +75,6 @@ class MainActivity : AppCompatActivity() {
             @Suppress("UnspecifiedRegisterReceiverFlag")
             registerReceiver(refreshReceiver, IntentFilter("com.kaif.launcher.REFRESH"))
         }
-
-        checkNotificationPermission()
-    }
-
-    private fun checkNotificationPermission() {
-        val prefs = getSharedPreferences("launcher", MODE_PRIVATE)
-        if (prefs.getBoolean("notif_asked", false)) return
-        val enabled = Settings.Secure.getString(contentResolver, "enabled_notification_listeners")
-        if (enabled?.contains(packageName) != true) {
-            AlertDialog.Builder(this)
-                .setTitle("Enable Notification Dots")
-                .setMessage("Grant notification access to show dots on apps with unread alerts?")
-                .setPositiveButton("Enable") { _, _ ->
-                    prefs.edit().putBoolean("notif_asked", true).apply()
-                    startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
-                }
-                .setNegativeButton("Skip") { _, _ ->
-                    prefs.edit().putBoolean("notif_asked", true).apply()
-                }
-                .show()
-        }
     }
 
     override fun onBackPressed() { }
@@ -150,7 +127,8 @@ class MainActivity : AppCompatActivity() {
         val prefs = getSharedPreferences("launcher", MODE_PRIVATE)
         val use24h = prefs.getBoolean("use_24h", true)
         val now = Calendar.getInstance()
-        val timeFormat = if (use24h) "HH:mm" else "hh:mm a"
+        // 12h format without AM/PM — just the time
+        val timeFormat = if (use24h) "HH:mm" else "hh:mm"
         clockView.text = SimpleDateFormat(timeFormat, Locale.getDefault()).format(now.time)
         dateView.text  = SimpleDateFormat("EEEE, dd MMM", Locale.getDefault())
             .format(now.time).uppercase()

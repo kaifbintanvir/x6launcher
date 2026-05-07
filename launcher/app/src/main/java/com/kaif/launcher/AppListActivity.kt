@@ -53,8 +53,6 @@ class AppListActivity : AppCompatActivity() {
                     .putString("${pickKey}_label", label).apply()
                 finish()
             } else {
-                NotificationService.notifiedPackages.remove(pkg)
-                adapter.notifyDataSetChanged()
                 packageManager.getLaunchIntentForPackage(pkg)?.let { startActivity(it) }
             }
         }
@@ -85,7 +83,6 @@ class AppListActivity : AppCompatActivity() {
                                 .putString("${pickKey}_label", label).apply()
                             finish()
                         } else {
-                            NotificationService.notifiedPackages.remove(pkg)
                             packageManager.getLaunchIntentForPackage(pkg)?.let { startActivity(it) }
                         }
                     }
@@ -158,9 +155,7 @@ class AppListActivity : AppCompatActivity() {
             val color = if (pkg == "com.kaif.launcher.SETTINGS") getColor(R.color.accent) else fontColor
             holder.name.setTextColor(color)
             holder.dot.setBackgroundColor(color)
-            val hasNotif = NotificationService.notifiedPackages.contains(pkg)
-            holder.notifDot.visibility = if (hasNotif) View.VISIBLE else View.GONE
-            holder.notifDot.setBackgroundColor(color)
+            holder.notifDot.visibility = View.GONE
             holder.itemView.setOnClickListener { onClick(pkg, label) }
         }
 
